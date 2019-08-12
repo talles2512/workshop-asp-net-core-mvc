@@ -7,26 +7,26 @@ using SalesWebMvc.Models.Enums;
 
 namespace SalesWebMvc.Data
 {
-    public class SeedingService
+    public class SeedingService //Serviço para popular a base de dados com os primeiros registros pré-setados
     {
-        private SalesWebMvcContext _context;
+        private SalesWebMvcContext _context; //Injeção de dependençia da classe de conexão com o banco
 
         public SeedingService(SalesWebMvcContext context)
         {
             _context = context;
         }
 
-        public void Seed()
+        public void Seed() //Método que irá a popular o banco
         {
-            if (_context.Department.Any() ||
-                _context.Seller.Any() ||
+            if (_context.Department.Any() || //Verificando se algumas das tabelas/classes já foram populadas
+                _context.Seller.Any() ||     //Caso sim, o programa sai do método
                 _context.SalesRecord.Any())
             {
-                return; //DB has benn seeded
+                return; //DB has benn seeded / Banco de Dados já está populado
             }
 
             Department d1 = new Department(1, "Computers");
-            Department d2 = new Department(2, "Electronics");
+            Department d2 = new Department(2, "Electronics");    //REGISTROS TESTE
             Department d3 = new Department(3, "Fashin");
             Department d4 = new Department(4, "Books");
 
@@ -68,16 +68,16 @@ namespace SalesWebMvc.Data
             SalesRecord r29 = new SalesRecord(29, new DateTime(2018, 10, 23), 12000.0, SaleStatus.Billed, s5);
             SalesRecord r30 = new SalesRecord(30, new DateTime(2018, 10, 12), 5000.0, SaleStatus.Billed, s2);
 
-            _context.Department.AddRange(d1, d2, d3, d4);
-            _context.Seller.AddRange(s1, s2, s3, s4, s5, s6);
+            _context.Department.AddRange(d1, d2, d3, d4); //Adicionando os objetos de Departamento a serem inseridos no banco
+            _context.Seller.AddRange(s1, s2, s3, s4, s5, s6); //Adicionando os objetos de Vendedores a serem inseridos no banco
 
-            _context.SalesRecord.AddRange(
+            _context.SalesRecord.AddRange( //Adicionando os objetos de Registro de Venda a serem inseridos no banco
                 r1, r2, r3, r4, r5, r6, r7, r8, r9, r10,
                 r11, r12, r13, r14, r15, r16, r17, r18, r19, r20,
                 r21, r22, r23, r24, r25, r26, r27, r28, r29, r30
             );
 
-            _context.SaveChanges();
+            _context.SaveChanges(); //Guardando os dados e Finalizando o processo de inserção
         }
     }
 }

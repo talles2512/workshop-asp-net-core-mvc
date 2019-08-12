@@ -38,10 +38,10 @@ namespace SalesWebMvc
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddDbContext<SalesWebMvcContext>(options =>
+            services.AddDbContext<SalesWebMvcContext>(options => //Configurando a conexão com o banco. o Método UseMySql() tem como argumento a "string de conexão"
                     options.UseMySql(Configuration.GetConnectionString("SalesWebMvcContext"), builder =>
                         builder.MigrationsAssembly("SalesWebMvc")));
-            services.AddScoped<SeedingService>();
+            services.AddScoped<SeedingService>(); //Adicionandos os serviços às configurações da solução
             services.AddScoped<SellerService>();
             services.AddScoped<DepartmentService>();
         }
@@ -49,10 +49,10 @@ namespace SalesWebMvc
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, SeedingService seedingService)
         {
-            if (env.IsDevelopment())
+            if (env.IsDevelopment()) //Caso seja desenvolvedor
             {
                 app.UseDeveloperExceptionPage();
-                seedingService.Seed();
+                seedingService.Seed(); //Iniciando a população dos registros de teste no Banco de Dados
             }
             else
             {
@@ -68,7 +68,7 @@ namespace SalesWebMvc
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=Home}/{action=Index}/{id?}"); //Definindo a estrutura do site e a View Index como sendo a pagina Home
             });
         }
     }
