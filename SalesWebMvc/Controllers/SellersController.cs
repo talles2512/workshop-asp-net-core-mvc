@@ -62,5 +62,21 @@ namespace SalesWebMvc.Controllers
             _sellerService.Remove(id); //acionando o metódo do Serviço de Vendedor para remover o registro
             return RedirectToAction(nameof(Index)); //Retornando para a View Index
         }
+
+        public IActionResult Details(int? id)
+        {
+            if (id == null) //Caso a busca dê algum tipo de problema
+            {
+                return NotFound(); //View NotFound
+            }
+
+            var obj = _sellerService.FindById(id.Value); // é necessário o .Value para resgatar o valor, pois o argumento pode ser nulo
+            if (obj == null) //Caso o retorno do FindById não encontre nenhum registro
+            {
+                return NotFound();
+            }
+
+            return View(obj); //iniciando a View Details jogando o objeto 
+        }
     }
 }
