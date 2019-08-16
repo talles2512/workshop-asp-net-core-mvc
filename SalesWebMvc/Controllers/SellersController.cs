@@ -6,6 +6,7 @@ using SalesWebMvc.Models;
 using SalesWebMvc.Models.ViewModels;
 using System.Collections.Generic;
 using SalesWebMvc.Services.Exceptions;
+using System.Diagnostics;
 
 namespace SalesWebMvc.Controllers
 {
@@ -45,13 +46,13 @@ namespace SalesWebMvc.Controllers
         {
             if(id == null) //Caso a busca dê algum tipo de problema
             {
-                return NotFound(); //View NotFound
-            }
+                return RedirectToAction(nameof(Error), new { message = "Id not provided"}); //Anteriormente retornada uma view padrão View NotFound
+            }   //Agora retorna a view Error com uma mensagem personalizada conforme o contexto do erro: Id não fornecido, neste caso. new {} é um objeto anônimo
 
             var obj = _sellerService.FindById(id.Value); // é necessário o .Value para resgatar o valor, pois o argumento pode ser nulo
             if(obj == null) //Caso o retorno do FindById não encontre nenhum registro
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not found" }); //Id não encontrado
             }
 
             return View(obj); //iniciando a View Delete jogando o objeto 
@@ -69,13 +70,13 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null) //Caso a busca dê algum tipo de problema
             {
-                return NotFound(); //View NotFound
+                return RedirectToAction(nameof(Error), new { message = "Id not provided" });
             }
 
             var obj = _sellerService.FindById(id.Value); // é necessário o .Value para resgatar o valor, pois o argumento pode ser nulo
             if (obj == null) //Caso o retorno do FindById não encontre nenhum registro
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not found" });
             }
 
             return View(obj); //iniciando a View Details jogando o objeto 
@@ -85,13 +86,13 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null) //Caso a busca dê algum tipo de problema
             {
-                return NotFound(); //View NotFound
+                return RedirectToAction(nameof(Error), new { message = "Id not provided" }); //View NotFound
             }
 
             var obj = _sellerService.FindById(id.Value);
             if(obj == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not found" });
             }
 
             List<Department> departments = _departmentService.FindAll();
@@ -105,21 +106,36 @@ namespace SalesWebMvc.Controllers
         {
             if(id != seller.Id) //Caso o id passado seja diferente do Id do Vendedor que deve ser alterado
             {
-                return BadRequest();
+                return RedirectToAction(nameof(Error), new { message = "Id mismatch" }); //Anteriormente chamava uma view padrão BadRequest. Erro: Id não corresponde
             }
             try
             {
                 _sellerService.Update(seller);
                 return RedirectToAction(nameof(Index));
             }
-            catch (NotFoundException)
+            catch (NotFoundException e)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = e.Message }); //Instanciando o objeto com a mensagem de erro da NotFoundException
             }
-            catch (DbConcurrencyException)
+            catch (DbConcurrencyException e)
             {
-                return BadRequest();
+                return RedirectToAction(nameof(Error), new { message = e.Message }); //Instanciando o objeto com a mensagem de erro da DbConcurrencyException
             }
+
+            //catch (ApplicationException e)           Como as exceções acima herdam de ApplicationException, podemos utilizar o polimorfismo(Upcasting), porém não o fiz para ficar mais visível
+            //{
+            //    return RedirectToAction(nameof(Error), new { message = e.Message }); //Instanciando o objeto com a mensagem de erro da NotFoundExecption
+            //}
+        }
+
+        public IActionResult Error(string message) //Trazendo a tela de erro
+        {
+            var viewModel = new ErrorViewModel //Instanciando o objeto que será apresentado na tela
+            {
+                Message = message, //Definindo a mensagem do objeto pela mensagem recebida como parâmetro
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier //pegando o Id interno da requisição
+            }; //Current? é um valor opcional, portanto usamos ?? para, caso não exista um valor, a variável Id receberá o Id do HttpContext
+            return View(viewModel);
         }
     }
 }
