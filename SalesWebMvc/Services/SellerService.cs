@@ -17,39 +17,40 @@ namespace SalesWebMvc.Services
             _context = context;
         }
 
-        public List<Seller> FindAll() //Listando todos os vendedores
-        {
-            return _context.Seller.ToList(); //Nota-se aqui que: através do objeto de conexão com o banco, acionando a classe vendedor,                                
+        public async Task<List<Seller>> FindAllAsync() //Listando todos os vendedores ////Agora é async
+        {                                            //O nome do método foi alterado para estar de acordo com as padronizações do C#
+            return await _context.Seller.ToListAsync(); //Nota-se aqui que: através do objeto de conexão com o banco, acionando a classe vendedor,                                
         }                                    // é possivel listar todos os vendedores do banco
 
-        public void Insert(Seller obj)
+        public async Task InsertAsync(Seller obj) ////Agora é async
         {
             _context.Add(obj); //adicionando um novo Vendedor
-            _context.SaveChanges(); //confirmando a operação
+            await _context.SaveChangesAsync(); //confirmando a operação
         }
 
-        public Seller FindById(int id) //Buscando por id
+        public async Task<Seller> FindByIdAsync(int id) //Buscando por id ////Agora é async
         {
-            return _context.Seller.Include(obj => obj.Department).FirstOrDefault(obj => obj.Id == id); //FirstOrDefault tenta encontrar o primeiro registro conforme uma condição
+            return await _context.Seller.Include(obj => obj.Department).FirstOrDefaultAsync(obj => obj.Id == id); //FirstOrDefault tenta encontrar o primeiro registro conforme uma condição
         }
 
-        public void Remove(int id)
+        public async Task RemoveAsync(int id) ////Agora é async
         {
-            var obj = _context.Seller.Find(id); //procurando um vendedor pelo id no banco de dados e instanciando ele
+            var obj = await _context.Seller.FindAsync(id); //procurando um vendedor pelo id no banco de dados e instanciando ele
             _context.Seller.Remove(obj); //removendo-o do banco
-            _context.SaveChanges(); //confirmando a operação
+            await _context.SaveChangesAsync(); //confirmando a operação
         }
 
-        public void Update(Seller obj)
+        public async Task UpdateAsync(Seller obj) ////Agora é async
         {
-            if(!_context.Seller.Any(x => x.Id == obj.Id)) //Procura uma ocorrência que tenha o mesmo Id, ou seja, verifica o registro a ser alterado existe
+            bool hasAny = await _context.Seller.AnyAsync(x => x.Id == obj.Id);
+            if(!hasAny) //Procura uma ocorrência que tenha o mesmo Id, ou seja, verifica o registro a ser alterado existe
             {
                 throw new NotFoundException("Id not found"); //Lança a exceção referente a não ocorrencia de registro
             }
             try
             {
                 _context.Update(obj); //Atualiza o registro de Vendedor passando como parametro o Vendedor alterado
-                _context.SaveChanges(); //confirmando a operação
+                await _context.SaveChangesAsync(); //confirmando a operação
             }
             catch(DbUpdateConcurrencyException e) //Exceção do nivel de acesso a dados
             {
