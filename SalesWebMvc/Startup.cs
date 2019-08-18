@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Globalization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Localization;
 using SalesWebMvc.Models;
 using SalesWebMvc.Data;
 using SalesWebMvc.Services;
@@ -49,6 +51,16 @@ namespace SalesWebMvc
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, SeedingService seedingService)
         {
+            var enUS = new CultureInfo("en-US"); //english - United States
+            var localizationOptions = new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture(enUS), //Localização padrão da aplicação
+                SupportedCultures = new List<CultureInfo> { enUS }, //Lista de Culturas suportadas
+                SupportedUICultures = new List<CultureInfo> { enUS }
+            };
+
+            app.UseRequestLocalization(localizationOptions); //Aplicação recebe a configuração de localização
+
             if (env.IsDevelopment()) //Caso seja desenvolvedor
             {
                 app.UseDeveloperExceptionPage();
