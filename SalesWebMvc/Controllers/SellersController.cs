@@ -38,6 +38,16 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken] //Proteção para ataques Forgery Token
         public IActionResult Create(Seller seller) //Metodo de postagem e inserção dos dados preenchidos no formulário/view Create
         {
+            if (!ModelState.IsValid) //Testa se o modelo é valido
+            {
+                var departments = _departmentService.FindAll();
+                var viewModel = new SellerFormViewModel
+                {
+                    Seller = seller,
+                    Departments = departments
+                };
+                return View(viewModel); //Caso não seja, o programa retorna para a mesma tela
+            }
             _sellerService.Insert(seller); //Jogando os dados 
             return RedirectToAction(nameof(Index)); //retornando da View Create para a View Index
         }
@@ -104,7 +114,17 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, Seller seller)
         {
-            if(id != seller.Id) //Caso o id passado seja diferente do Id do Vendedor que deve ser alterado
+            if (!ModelState.IsValid) //Testa se o modelo é valido
+            {
+                var departments = _departmentService.FindAll();
+                var viewModel = new SellerFormViewModel
+                {
+                    Seller = seller,
+                    Departments = departments
+                };
+                return View(viewModel); //Caso não seja, o programa retorna para a mesma tela
+            }  
+            if (id != seller.Id) //Caso o id passado seja diferente do Id do Vendedor que deve ser alterado
             {
                 return RedirectToAction(nameof(Error), new { message = "Id mismatch" }); //Anteriormente chamava uma view padrão BadRequest. Erro: Id não corresponde
             }
